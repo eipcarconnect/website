@@ -1,0 +1,88 @@
+@media only screen and (max-width: 600px) {
+	.inline {
+		display: inline-flex;
+		margin-left: 20px;
+	}
+	div .contact ul {
+		margin-left: 20px;
+		margin-right: 20px;
+		margin-top: 5px;
+		margin-bottom: 0px;
+		display: inline-flex;
+		padding: 0;
+	}
+	.icon  {
+		font-size: 14px !important;
+		margin-top: 3px;
+	}
+	h6 {
+		font-size: 10px !important;
+	}
+	.social {
+		margin-top: -5px !important;
+		margin-bottom: 0px !important;
+	}
+}
+
+@media only screen and (min-width: 600px) {
+	.inline {
+		display: inline-flex;
+		margin-left: 20px;
+	}
+	div .contact ul {
+		margin: 20px;
+		display: inline-flex;
+		padding: 0;
+	}
+}
+
+@media only screen and (min-width: 768px) {
+	.inline {
+		display: inline-flex;
+		margin-left: 20px;
+	}
+	div .contact ul {
+		margin: 20px;
+		display: inline-flex;
+	}
+}
+
+@media only screen and (min-width: 992px) {
+	.inline {
+		display: inline-flex;
+		margin-left: 20px;
+	}
+}
+
+.icon {
+	margin-right: 10px;
+	font-size: 20px
+}
+
+.com {
+	position: absolute;
+	right: 0;
+}
+
+div .contact ul li {
+	text-transform: none;
+}
+
+h6 {
+	margin-top: 3px;
+	font-size: 12px;
+}
+
+.social {
+	margin-top: -20px;
+	margin-bottom: 20px;
+}
+
+.reseau {
+	color: black;
+	outline: none;
+}
+
+.reseau:hover {
+	color: #e74c3c !important;
+}
