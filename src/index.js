@@ -4,14 +4,9 @@ import './index.css';
 
 import AppRouter from './Router';
 
-import Menu from './components/menu.js'
-import Contact from './components/contact.js'
-
 function App() {
 	return (
 		<div>
-			<Contact />
-			<Menu />
 			<AppRouter />
 		</div>
 	)
