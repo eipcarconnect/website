@@ -145,7 +145,7 @@ class Home extends React.Component {
 					<hr />
 
 					<div className="center-item">
-						<iframe type="text/html"
+						<iframe type="text/html" title="youtube"
 						  src="https://www.youtube.com/embed/DmUDns9OaeM?autoplay=1&origin=http://example.com"
 						  frameborder="0" className="ytb-player"></iframe>
 					</div>
