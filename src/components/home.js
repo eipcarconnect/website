@@ -28,7 +28,7 @@ class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			cookies: true,
+			cookies: false,
 			name: "",
 			job: "",
 			sort: true,
