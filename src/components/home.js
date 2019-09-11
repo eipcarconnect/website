@@ -6,6 +6,10 @@ import { FaBell } from 'react-icons/fa';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { FaBatteryFull } from 'react-icons/fa';
 import { FaWrench } from 'react-icons/fa';
+// import { FaRegStarHalf } from 'react-icons/fa';
+import { FaRegStar } from 'react-icons/fa';
+import { MdPhoneIphone } from 'react-icons/md';
+import { MdEmail } from 'react-icons/md';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import './home.css'
@@ -24,17 +28,55 @@ class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			cookies: true,
 			name: "",
 			job: "",
+			sort: true,
+			commentPerPage: 10,
+			commentPage: 1,
+			commentForm: {id: null, title: "", note: 0, body: ""},
 			comment: [{id: 1, title: "Très satisfait", note: 4, body: "J'ai acheté ce produit et j'en suis vraiment très satisfait."},
-			{id: 2, title: "Je recommande", note: 4, body: "J'ai acheté ce produit et je le recommande vraiment à tout le monde."},
+			{id: 2, title: "Je recommande", note: 3, body: "J'ai acheté ce produit et je le recommande vraiment à tout le monde."},
 			{id: 3, title: "Ravi", note: 5, body: "Un produit miracle pour jouer le garde du corps de mon véhicule."}]
 		}
+		this.handleCookieConsent = this.handleCookieConsent.bind(this);
+		this.handleSortChange = this.handleSortChange.bind(this);
+		this.handleNumberChange = this.handleNumberChange.bind(this);
 		this.changeText = this.changeText.bind(this);
+		this.handleChange = this.handleChange.bind(this);
+		this.changeNote = this.changeNote.bind(this);
+		this.postComment = this.postComment.bind(this);
 	}
 
 	async componentDidMount() {
 		this.setState({name: "Click on picture to see details"})
+	}
+
+	handleCookieConsent() {
+		this.setState({cookies: true})
+	}
+
+	handleSortChange(event) {
+		if ((event.target.textContent === "Date" && !this.state.sort) ||
+				(event.target.textContent === "Note" && this.state.sort)) {
+					this.setState({sort: !this.state.sort})
+					this.sortComments();
+		}
+	}
+
+	sortComments() {
+		if (!this.state.sort)
+			this.state.comment.sort((a, b) => a.id > b.id)
+		else
+			this.state.comment.sort((a, b) => a.note < b.note)
+	}
+
+	handleNumberChange(event) {
+		if ((event.target.textContent === "10" && this.state.commentPerPage !== 10) ||
+				(event.target.textContent === "2" && this.state.commentPerPage !== 2) ||
+				(event.target.textContent === "50" && this.state.commentPerPage !== 50)) {
+					this.setState({commentPerPage: parseInt(event.target.textContent, 10)})
+		}
 	}
 
 	changeText(el) {
@@ -56,9 +98,36 @@ class Home extends React.Component {
 		}
 	}
 
+	changeNote(el) {
+		this.setState({commentForm: {note: el + 1, title: this.state.commentForm.title, body: this.state.commentForm.body}})
+	}
+
+	handleChange(event) {
+		if (event.target.name === "title")
+			this.setState({commentForm: {title: event.target.value, note: this.state.commentForm.note, body: this.state.commentForm.body}})
+		else if (event.target.name === "body")
+			this.setState({commentForm: {body: event.target.value, note: this.state.commentForm.note, title: this.state.commentForm.title}})
+	}
+
+	postComment(event) {
+		event.preventDefault();
+		this.state.comment.push({id: 10, title: this.state.commentForm.title, body: this.state.commentForm.body, note: this.state.commentForm.note})
+		var request = new XMLHttpRequest();
+		request.open('POST', '/comments', true);
+		request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+		request.send(this.state.comment);
+		this.setState({commentForm: {title: "", note: 0, body: ""}})
+	}
+
   render() {
   	return (
 			<div>
+
+				{!this.state.cookies &&
+					<div id="cookieConsent">
+						Ce site utilise des cookies.<a className="cookieConsentOK" onClick={this.handleCookieConsent} >Accepter</a>
+					</div>
+				}
 
 				<div className="left-component">
 					<h1 className="center title">CarConnect</h1>
@@ -147,7 +216,7 @@ class Home extends React.Component {
 					<div className="center-item">
 						<iframe type="text/html" title="youtube"
 						  src="https://www.youtube.com/embed/DmUDns9OaeM?autoplay=1&origin=http://example.com"
-						  frameborder="0" className="ytb-player"></iframe>
+						  className="ytb-player"></iframe>
 					</div>
 
 				</div>
@@ -206,9 +275,22 @@ class Home extends React.Component {
 					<h5 className="center subtitle">Consulter les avis</h5>
 					<hr />
 
+					<div className="select">
+						<div className="left-button-container">
+							<button className={this.state.sort ? "left-button active-button" : "left-button"} onClick={this.handleSortChange}>Date</button>
+							<button className={!this.state.sort ? "left-button active-button" : "left-button"} onClick={this.handleSortChange}>Note</button>
+						</div>
+						<div className="right-button-container">
+							<button className={this.state.commentPerPage === 50 ? "right-button active-button" : "right-button"} onClick={this.handleNumberChange}>50</button>
+							<button className={this.state.commentPerPage === 2 ? "right-button active-button" : "right-button"} onClick={this.handleNumberChange}>2</button>
+							<button className={this.state.commentPerPage === 10 ? "right-button active-button" : "right-button"} onClick={this.handleNumberChange}>10</button>
+						</div>
+					</div>
+
 					<div>
 			      {this.state.comment.map((item, index) => (
-							<div className="center-item">
+							this.state.commentPerPage > index &&
+							<div className="center-item" key={index}>
 								<div className="card-comment">
 									<span className="comment-title"><b>{item.title}</b></span>
 									<span className="comment-note">{item.note}/5</span>
@@ -218,6 +300,26 @@ class Home extends React.Component {
 							</div>
 			      ))}
 			    </div>
+
+					<div>
+						<nav className="pagination-outer" aria-label="Page navigation">
+							<ul className="pagination">
+									<li className="page-item">
+											<a href="#" className="page-link" aria-label="Previous">
+													<span aria-hidden="true">«</span>
+											</a>
+									</li>
+									<li className="page-item active"><a className="page-link" href="#">1</a></li>
+									<li className="page-item"><a className="page-link" href="#">2</a></li>
+									<li className="page-item"><a className="page-link" href="#">3</a></li>
+									<li className="page-item">
+											<a href="#" className="page-link" aria-label="Next">
+													<span aria-hidden="true">»</span>
+											</a>
+									</li>
+							</ul>
+						</nav>
+					</div>
 					<br />
 
 					<div className="black-background">
@@ -229,18 +331,41 @@ class Home extends React.Component {
 
 							<ul>
 								<li>
-									<input type="text" name="title" placeholder="Titre" />
-									<input type="number" name="note" placeholder="note" />
+									<div className="note-star">
+										<FaRegStar key={0} onClick={(e) => this.changeNote(0)} className={0 < this.state.commentForm.note ? "checked spacing" : "spacing"}/>
+										<FaRegStar key={1} onClick={(e) => this.changeNote(1)} className={1 < this.state.commentForm.note ? "checked spacing" : "spacing"}/>
+										<FaRegStar key={2} onClick={(e) => this.changeNote(2)} className={2 < this.state.commentForm.note ? "checked spacing" : "spacing"}/>
+										<FaRegStar key={3} onClick={(e) => this.changeNote(3)} className={3 < this.state.commentForm.note ? "checked spacing" : "spacing"}/>
+										<FaRegStar key={4} onClick={(e) => this.changeNote(4)} className={4 < this.state.commentForm.note ? "checked spacing" : "spacing"}/>
+									</div>
 								</li>
 								<li>
-									<textarea type="text" name="title" placeholder="Commentaire" className="form-body"/>
+									<input type="text" name="title" placeholder="Titre" className="form-title" value={this.state.commentForm.title} onChange={this.handleChange} />
 								</li>
 								<li>
-									<button className="form-button">Valider</button>
+									<textarea type="text" name="body" placeholder="Commentaire" className="form-body" value={this.state.commentForm.body} onChange={this.handleChange}/>
+								</li>
+								<li>
+									<button className="form-button" onClick={this.postComment}>Valider</button>
 								</li>
 							</ul>
 
 						</form>
+
+					</div>
+
+					<div className="white-background">
+					<h3 className="center title">Nous Contacter</h3>
+					<hr />
+
+					<ul className="contact-icons">
+						<li>
+							<MdPhoneIphone /><a href="tel:+33684355629" className="contact-infos">+33 6 84 35 56 29</a>
+						</li>
+						<li>
+							<MdEmail /><a href="mailto:carconnct@gmail.com" className="contact-infos">carconnect@gmail.com</a>
+						</li>
+					</ul>
 
 					</div>
 
