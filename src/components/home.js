@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { Image } from 'react-bootstrap';
 
 import { FaCarCrash } from 'react-icons/fa';
@@ -32,20 +32,27 @@ class Home extends React.Component {
 			name: "",
 			job: "",
 			sort: true,
-			commentPerPage: 10,
+			commentPerPage: 1,
 			commentPage: 1,
-			commentForm: {id: null, title: "", note: 0, body: ""},
-			comment: [{id: 1, title: "Très satisfait", note: 4, body: "J'ai acheté ce produit et j'en suis vraiment très satisfait."},
-			{id: 2, title: "Je recommande", note: 3, body: "J'ai acheté ce produit et je le recommande vraiment à tout le monde."},
-			{id: 3, title: "Ravi", note: 5, body: "Un produit miracle pour jouer le garde du corps de mon véhicule."}]
+			commentForm: {id: null, title: "", note: 0, body: "", parent: null},
+			comment: [{id: 1, title: "Très satisfait", note: 4, body: "J'ai acheté ce produit et j'en suis vraiment très satisfait.", extend: false},
+			{id: 2, title: "Je recommande", note: 3, body: "J'ai acheté ce produit et je le recommande vraiment à tout le monde.", extend: false},
+			{id: 3, title: "Ravi", note: 5, body: "Un produit miracle pour jouer le garde du corps de mon véhicule.", extend: false}],
+			response: [{id: 1, title: "ok", note: "4", body: "entièrement d'accord", parent: 1},
+			{id: 2, title: "test", note: "3", body: "tout à fait", parent: 2}],
 		}
+		this.ref = createRef();
 		this.handleCookieConsent = this.handleCookieConsent.bind(this);
 		this.handleSortChange = this.handleSortChange.bind(this);
 		this.handleNumberChange = this.handleNumberChange.bind(this);
 		this.changeText = this.changeText.bind(this);
 		this.handleChange = this.handleChange.bind(this);
+		this.changePage = this.changePage.bind(this);
 		this.changeNote = this.changeNote.bind(this);
 		this.postComment = this.postComment.bind(this);
+		this.countResponses = this.countResponses.bind(this);
+		this.showReponses = this.showReponses.bind(this);
+		this.respondToComment = this.respondToComment.bind(this);
 	}
 
 	async componentDidMount() {
@@ -72,9 +79,9 @@ class Home extends React.Component {
 	}
 
 	handleNumberChange(event) {
-		if ((event.target.textContent === "10" && this.state.commentPerPage !== 10) ||
+		if ((event.target.textContent === "3" && this.state.commentPerPage !== 3) ||
 				(event.target.textContent === "2" && this.state.commentPerPage !== 2) ||
-				(event.target.textContent === "50" && this.state.commentPerPage !== 50)) {
+				(event.target.textContent === "1" && this.state.commentPerPage !== 1)) {
 					this.setState({commentPerPage: parseInt(event.target.textContent, 10)})
 		}
 	}
@@ -98,25 +105,58 @@ class Home extends React.Component {
 		}
 	}
 
+	changePage(page) {
+		if (page > 0 && page <= 3)
+		this.setState({commentPage: page});
+	}
+
 	changeNote(el) {
-		this.setState({commentForm: {note: el + 1, title: this.state.commentForm.title, body: this.state.commentForm.body}})
+		this.setState({commentForm: {note: el + 1, title: this.state.commentForm.title, body: this.state.commentForm.body, parent: this.state.commentForm.parent}})
 	}
 
 	handleChange(event) {
 		if (event.target.name === "title")
-			this.setState({commentForm: {title: event.target.value, note: this.state.commentForm.note, body: this.state.commentForm.body}})
+			this.setState({commentForm: {title: event.target.value, note: this.state.commentForm.note, body: this.state.commentForm.body, parent: this.state.commentForm.parent}})
 		else if (event.target.name === "body")
-			this.setState({commentForm: {body: event.target.value, note: this.state.commentForm.note, title: this.state.commentForm.title}})
+			this.setState({commentForm: {body: event.target.value, note: this.state.commentForm.note, title: this.state.commentForm.title, parent: this.state.commentForm.parent}})
 	}
 
 	postComment(event) {
 		event.preventDefault();
-		this.state.comment.push({id: 10, title: this.state.commentForm.title, body: this.state.commentForm.body, note: this.state.commentForm.note})
-		var request = new XMLHttpRequest();
-		request.open('POST', '/comments', true);
-		request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-		request.send(this.state.comment);
-		this.setState({commentForm: {title: "", note: 0, body: ""}})
+		if (this.state.commentForm.parent) {
+			this.state.response.push({id: 10, title: this.state.commentForm.title, body: this.state.commentForm.body, note: this.state.commentForm.note, parent: this.state.commentForm.parent})
+			var request = new XMLHttpRequest();
+			request.open('POST', '/responses', true);
+			request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+			request.send(this.state.response);
+		} else {
+			this.state.comment.push({id: 10, title: this.state.commentForm.title, body: this.state.commentForm.body, note: this.state.commentForm.note, parent: null})
+			var request = new XMLHttpRequest();
+			request.open('POST', '/comments', true);
+			request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+			request.send(this.state.comment);
+		}
+		this.setState({commentForm: {title: "", note: 0, body: "", parent: null}})
+	}
+
+	countResponses(index) {
+		return (
+			<span> Voir les ({this.state.response.filter(x => x.parent === this.state.comment[index].id).length}) réponses</span>
+		);
+	}
+
+	respondToComment(index) {
+		this.ref.current.scrollIntoView({
+			behavior: 'smooth',
+			block: 'start',
+		});
+		this.state.commentForm.parent = this.state.comment[index].id;
+		this.forceUpdate()
+	}
+
+	showReponses(index) {
+		this.state.comment[index].extend = !this.state.comment[index].extend
+		this.forceUpdate()
 	}
 
   render() {
@@ -281,21 +321,41 @@ class Home extends React.Component {
 							<button className={!this.state.sort ? "left-button active-button" : "left-button"} onClick={this.handleSortChange}>Note</button>
 						</div>
 						<div className="right-button-container">
-							<button className={this.state.commentPerPage === 50 ? "right-button active-button" : "right-button"} onClick={this.handleNumberChange}>50</button>
+							<button className={this.state.commentPerPage === 3 ? "right-button active-button" : "right-button"} onClick={this.handleNumberChange}>3</button>
 							<button className={this.state.commentPerPage === 2 ? "right-button active-button" : "right-button"} onClick={this.handleNumberChange}>2</button>
-							<button className={this.state.commentPerPage === 10 ? "right-button active-button" : "right-button"} onClick={this.handleNumberChange}>10</button>
+							<button className={this.state.commentPerPage === 1 ? "right-button active-button" : "right-button"} onClick={this.handleNumberChange}>1</button>
 						</div>
 					</div>
 
 					<div>
-			      {this.state.comment.map((item, index) => (
-							this.state.commentPerPage > index &&
-							<div className="center-item" key={index}>
-								<div className="card-comment">
-									<span className="comment-title"><b>{item.title}</b></span>
-									<span className="comment-note">{item.note}/5</span>
-									<br /><br />
-					        <p className="comment-body">{item.body}</p>
+						{this.state.comment.map((item, index) => (
+							this.state.commentPerPage * this.state.commentPage - this.state.commentPerPage <= index && index < this.state.commentPerPage * this.state.commentPage &&
+							<div key={index}>
+								<div className="center-item">
+									<div className="card-comment" onClick={(e) => this.respondToComment(index)}>
+										<span className="comment-title"><b>{item.title}</b></span>
+										<span className="comment-note">{item.note}/5</span>
+										<br /><br />
+						        <p className="comment-body">{item.body}</p>
+									</div>
+								</div>
+
+								<div className="extend" onClick={(e) => this.showReponses(index)}>
+									{this.countResponses(index)}
+								</div>
+
+								<div>
+									{this.state.response.map((el, i) => (
+										el.parent === item.id && item.extend &&
+										<div className="center-item" key={i}>
+											<div className="card-response">
+												<span className="comment-title"><b>{el.title}</b></span>
+												<span className="comment-note">{el.note}/5</span>
+												<br /><br />
+												<p className="comment-body">{el.body}</p>
+											</div>
+										</div>
+									))}
 								</div>
 							</div>
 			      ))}
@@ -304,16 +364,16 @@ class Home extends React.Component {
 					<div>
 						<nav className="pagination-outer" aria-label="Page navigation">
 							<ul className="pagination">
-									<li className="page-item">
-											<a href="#" className="page-link" aria-label="Previous">
+									<li className="page-item" onClick={(e) => this.changePage(this.state.commentPage - 1)}>
+											<a className="page-link" aria-label="Previous">
 													<span aria-hidden="true">«</span>
 											</a>
 									</li>
-									<li className="page-item active"><a className="page-link" href="#">1</a></li>
-									<li className="page-item"><a className="page-link" href="#">2</a></li>
-									<li className="page-item"><a className="page-link" href="#">3</a></li>
-									<li className="page-item">
-											<a href="#" className="page-link" aria-label="Next">
+									<li className={this.state.commentPage === 1 ? 'page-item active' : 'page-item'} onClick={(e) => this.changePage(1)}><a className="page-link">1</a></li>
+									<li className={this.state.commentPage === 2 ? 'page-item active' : 'page-item'} onClick={(e) => this.changePage(2)}><a className="page-link">2</a></li>
+									<li className={this.state.commentPage === 3 ? 'page-item active' : 'page-item'} onClick={(e) => this.changePage(3)}><a className="page-link">3</a></li>
+									<li className="page-item" onClick={(e) => this.changePage(this.state.commentPage + 1)}>
+											<a className="page-link" aria-label="Next">
 													<span aria-hidden="true">»</span>
 											</a>
 									</li>
@@ -324,7 +384,7 @@ class Home extends React.Component {
 
 					<div className="black-background">
 
-						<h3 className="center title">Laissez un commentaire</h3>
+						<h3 className="center title" ref={this.ref}>Laissez un commentaire</h3>
 						<hr />
 
 						<form className="center-item">
