@@ -1,0 +1,22 @@
+@media only screen and (max-width: 600px){
+	.align-youtube {
+		width: 100%;
+	}
+	.margin-class {
+		margin: 50px;
+		margin-top: 0;
+		text-align: center
+	}
+}
+
+@media only screen and (min-width: 600px){
+	.align-youtube {
+		width: 80%;
+		margin: auto;
+	}
+	.margin-class {
+		margin: 90px;
+		margin-top: 0;
+		text-align: center
+	}
+}

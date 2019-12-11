@@ -191,9 +191,9 @@ class Home extends React.Component {
 					<div className="fonc-list">
 
 						<div className="icon-display">
-							<button className="round-button">
+							<a href="carshock"><button className="round-button">
 								<FaCarCrash />
-							</button>
+							</button></a>
 							<div className="fonc-area">
 								<h4 className="fonc-title">CarShock</h4>
 								<p className="fonc-desc">Un détecteur de chocs</p>
@@ -213,9 +213,9 @@ class Home extends React.Component {
 						<br />
 
 						<div className="icon-display">
-							<button className="round-button">
+							<a href="map"><button className="round-button">
 								<FaMapMarkerAlt />
-							</button>
+							</button></a>
 							<div className="fonc-area">
 								<h4 className="fonc-title">Map</h4>
 								<p className="fonc-desc">Sauvegardez vos positions</p>
@@ -235,9 +235,9 @@ class Home extends React.Component {
 						<br />
 
 						<div className="icon-display">
-							<button className="round-button">
+							<a href="control"><button className="round-button">
 								<FaWrench />
-							</button>
+							</button></a>
 							<div className="fonc-area">
 								<h4 className="fonc-title">Contrôle</h4>
 								<p className="fonc-desc">Gérez votre véhicule</p>
