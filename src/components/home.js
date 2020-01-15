@@ -202,9 +202,9 @@ class Home extends React.Component {
 						<br />
 
 						<div className="icon-display">
-							<button className="round-button">
+							<a href="notifications"><button className="round-button">
 								<FaBell />
-							</button>
+							</button></a>
 							<div className="fonc-area">
 								<h4 className="fonc-title">Notifications</h4>
 								<p className="fonc-desc">Restez alerté</p>
@@ -224,9 +224,9 @@ class Home extends React.Component {
 						<br />
 
 						<div className="icon-display">
-							<button className="round-button">
+							<a href="battery"><button className="round-button">
 								<FaBatteryFull />
-							</button>
+							</button></a>
 							<div className="fonc-area">
 								<h4 className="fonc-title">Batterie</h4>
 								<p className="fonc-desc">Toujours prêt !</p>

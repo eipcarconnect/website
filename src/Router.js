@@ -5,6 +5,8 @@ import Home from './components/home';
 import Carshock from './components/carshock';
 import Control from './components/control';
 import Map from './components/map';
+import Notifications from './components/notifications';
+import Battery from './components/battery';
 
 const AppRouter = () => (
     <Router>
@@ -13,6 +15,8 @@ const AppRouter = () => (
 				<Route path="/carshock" exact component={Carshock} />
 				<Route path="/control" exact component={Control} />
 				<Route path="/map" exact component={Map} />
+				<Route path="/notifications" exact component={Notifications} />
+				<Route path="/battery" exact component={Battery} />
         </div>
     </Router>
 );
