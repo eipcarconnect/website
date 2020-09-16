@@ -132,9 +132,9 @@ class Home extends React.Component {
 		} else {
 			this.state.comment.push({id: 10, title: this.state.commentForm.title, body: this.state.commentForm.body, note: this.state.commentForm.note, parent: null})
 			var request = new XMLHttpRequest();
-			request.open('POST', '/comments', true);
+			request.open('POST', 'https://prod-betwfriends-api.herokuapp.com/api/v1/comments', true);
 			request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-			request.send(this.state.comment);
+			request.send(JSON.stringify(this.state.comment[this.state.comment.length - 1]));
 		}
 		this.setState({commentForm: {title: "", note: 0, body: "", parent: null}})
 	}
